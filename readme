@@ -1,0 +1,47 @@
+Smart Contract Project
+Basic concepts of ownership, balance management, and transaction handling on the Ethereum blockchain are illustrated by this Solidity smart contract. To enable compatibility with Solidity versions 
+0.8.0 or higher, it incorporates a pragma directive in addition to a license identifier (MIT) to define legal permissions. Two state variables are defined in the contract: balance, which tracks the
+amount of Ether held in the contract, and owner, which stores the address of the contract owner. The deployer is made the owner by the constructor. Access control is enforced using the onlyOwner
+modifier, which limits some functions to the owner. While the withdraw function lets the owner to take out certain amounts to make sure there is a sufficient balance before moving on, the deposit 
+function allows anyone to send Ether to the contract, boosting its balance. The forceRevert function, which always reverts transactions, serves as an example of error handling. In order to preserve
+the integrity and security of the contract's operations, the contract employs require to validate conditions and assert to ensure invariants.
+
+DESCRIPTION
+This Solidity smart contract, designed for Ethereum, provides a simple framework for managing ownership and balances.
+
+CODE
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ExampleContract {
+    address public owner;
+    uint256 public balance;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
+    }
+
+    function deposit() public payable {
+        balance += msg.value;
+        assert(balance >= msg.value);
+    }
+
+    function withdraw(uint256 amount) public onlyOwner {
+        require(amount <= balance, "Insufficient balance");
+
+        balance -= amount;
+        payable(msg.sender).transfer(amount);
+
+        assert(balance >= 0);
+    }
+
+    function forceRevert() public pure {
+        revert("Forced revert");
+    }
+}
+
